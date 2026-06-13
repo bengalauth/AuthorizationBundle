@@ -18,5 +18,5 @@ class BengalSettings {
     let powerButtonIconAngle: Double = 0.0
     let powerButtonIconColor: String = "#FFFFFF"
     let powerButtonsTransparency: Double = 0.33
-    let uiMode: String = "default"
+    let uiMode: String = "minimalistic"
 }
