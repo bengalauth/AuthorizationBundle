@@ -18,11 +18,27 @@ cp ${BASEDIR}/Info.plist "$BUILD_DIR/$BUNDLE_NAME/Contents/"
 cp -rf ${BASEDIR}/Resources/* "$BUILD_DIR/$BUNDLE_NAME/Contents/Resources/"
 
 # compile into dynamic library (bundle)
+SRC_FILES=(
+    "${BASEDIR}/core/AuthorizationPlugin.swift"
+    "${BASEDIR}/core/Mechanism.swift"
+    "${BASEDIR}/core/LoginUI.swift"
+    "${BASEDIR}/core/BundleLog.swift"
+)
+
+if [ -n "$APP_CORE" ]; then
+    if [ ! -f "$APP_CORE/SettingsManager.swift" ]; then
+        echo "APP_CORE is set, but $APP_CORE/SettingsManager.swift was not found." >&2
+        exit 1
+    fi
+    SRC_FILES+=("$APP_CORE/SettingsManager.swift")
+elif [ -f "${BASEDIR}/core/SettingsManager.swift" ]; then
+    SRC_FILES+=("${BASEDIR}/core/SettingsManager.swift")
+else
+    echo "WARNING: no app core settings manager found; using fallback." >&2
+fi
+
 swiftc -emit-library -o "$BUILD_DIR/$BUNDLE_NAME/Contents/MacOS/BengalLogin" \
-    ${BASEDIR}/src/AuthorizationPlugin.swift \
-    ${BASEDIR}/src/Mechanism.swift \
-    ${BASEDIR}/src/LoginUI.swift \
-    ${BASEDIR}/../app_src/SettingsManager.swift \
+    "${SRC_FILES[@]}" \
     -Xlinker -bundle
 
 echo "login UI built successfully: $BUILD_DIR/$BUNDLE_NAME"
